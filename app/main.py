@@ -21,7 +21,7 @@ def tracking_pixel():
      logging.info("Email opened!")
      print("opened images")
      return send_file(
-         "./app/mjarboua.jpg",
+         "/app/app/mjarboua.jpg",
          mimetype='image/jpg',
          as_attachment=False
      )
@@ -41,11 +41,9 @@ def send_email(to_email):
      html = f"""
      <html>
      <body>
-         <div style="background-image: url('https://feasible-firmly-monkfish.ngrok-free.app/pixel');">
              <p>Hello!</p>
              <p>This is a test email.</p>
-             <img src="https://feasible-firmly-monkfish.ngrok-free.app/pixel" width="200" height="200" />
-         </div>
+             <img src="http://157.175.44.139:8080/pixel" width="200" height="200" />
      </body>
  </html>
      """
@@ -65,7 +63,7 @@ def send_email(to_email):
 @app.route("/track", methods=['GET'])
 def track():
     """Endpoint to trigger email sending."""
-    send_email("testthisasset0x2@gmail.com")
+    send_email("simojarboue28@gmail.com")
     return jsonify({"message": "Email sent"})
 
 # if __name__ == '__main__':
