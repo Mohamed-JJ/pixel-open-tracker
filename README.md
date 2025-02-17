@@ -128,3 +128,9 @@ The application includes error handling for:
 - Server errors
 
 Errors are logged using the logging module for debugging and monitoring.
+
+## Run code
+
+```bash
+gunicorn app.main:app -b :3000 --reload
+```
