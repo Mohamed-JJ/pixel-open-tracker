@@ -1,0 +1,12 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    ports:
+      - "8080:5000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
