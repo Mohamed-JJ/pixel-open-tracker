@@ -25,9 +25,11 @@ def tracking_pixel():
     # Create a transparent 1x1 GIF in memory
     transparent_gif = b'GIF89a\x01\x01\x80\x00\x00\x00\x00\x00\x00\xFF\xFF\xFF,\x00\x00\x00\x00\x01\x01\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00;'
     # here do the changes you want like changing the variable from false to true
+
     ############################################################################
     return send_file(
-        io.BytesIO(transparent_gif),
+        # (image path if you want to use images)
+        io.BytesIO(transparent_gif), # can be removed (making the n¡binary in file format to work eith the send_file function)
         mimetype='image/gif',
         as_attachment=False
     )
