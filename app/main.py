@@ -20,8 +20,8 @@ def tracking_pixel():
     """Track email opens by logging the event and returning a 1x1 transparent GIF."""
     logging.info("Email opened!")  # Log the event that the email was opened
     print("opened images")
-    print(f"the arguments in the img request is this ({request.args.get("email_id")})")
-    
+    email_id = request.args.get("email_id")
+    logging.info(f"the arguments in the img request is this :{email_id}")
     # Create a transparent 1x1 GIF in memory
     transparent_gif = b'GIF89a\x01\x01\x80\x00\x00\x00\x00\x00\x00\xFF\xFF\xFF,\x00\x00\x00\x00\x01\x01\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00;'
     # here do the changes you want like changing the variable from false to true
