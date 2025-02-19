@@ -54,7 +54,7 @@ def send_email(to_email):
     <body>
             <p>Hello!</p>
             <p>This is a test email.</p>
-            <img src="http://157.175.44.139:8080/pixel?email_id=somth3243asd3qer" width="1" height="1" />
+            <img src="http://157.175.44.139:8080/pixel?email_id={"somth3243asd3qer"}" width="1" height="1" />
     </body>
  </html>
     """
