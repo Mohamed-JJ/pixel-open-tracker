@@ -6,54 +6,70 @@ import os, io
 import base64, uuid
 import smtplib
 import logging, requests
+import datetime
+import time
+import threading
 
 # # Load environment variables
 load_dotenv()
 
 # # Configure logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-@app.route('/pixel', methods=["GET"])
-def tracking_pixel():
-    """
-    Track email opens by serving a transparent 1x1 tracking pixel.
-    
-    This endpoint serves a transparent 1x1 GIF image that can be embedded in HTML emails
-    to track when recipients open the email. When the image is loaded, this function logs
-    the event and can process any pixel_id parameter passed in the query string.
-    
-    Request Parameters:
-        pixel_id (str, optional): An identifier that can be used to associate the tracking
-                                 event with a specific email or campaign.
-    
-    Returns:
-        Response: A Flask response object containing a transparent 1x1 GIF image with
-                 'image/gif' mimetype. This image is invisible to the recipient.
-    
-    Example Usage:
-        In an HTML email: <img src="https://your-domain.com/pixel?pixel_id=campaign123" width="1" height="1" />
-    """
-    # Log the event that the email was opened
-    logging.info("Email opened!")
+@app.route('/')
+def home():
+    """Root endpoint to verify server is running"""
+    return jsonify({
+        'status': 'online',
+        'time': datetime.datetime.now().isoformat()
+    })
 
-    # extract the pixel_id from the query parameters, and log it for debugging
-    pixel_id = request.args.get("pixel_id")
-    logging.info(f"the arguments in the img request is this :{pixel_id}")
+@app.route('/health')
+def health():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'time': datetime.datetime.now().isoformat(),
+        'endpoints': {
+            'tracking': '/track/open',
+            'health': '/health'
+        }
+    })
 
-    # Create a transparent 1x1 GIF in memory
-    transparent_gif = b'GIF89a\x01\x01\x80\x00\x00\x00\x00\x00\x00\xFF\xFF\xFF,\x00\x00\x00\x00\x01\x01\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00;'
-    
-    # here do the changes you want like changing the variable from false to true
-
-    ############################################################################
-    return send_file(
-        # (image path if you want to use images)
-        io.BytesIO(transparent_gif), # can be removed (making the binary in file format to work eith the send_file function)
-        mimetype='image/gif',
-        as_attachment=False
-    )
+@app.route('/track/open')
+def track_open():
+    """Track email opens by serving a transparent 1x1 tracking pixel"""
+    try:
+        # Get tracking parameters
+        uid = request.args.get('uid')
+        email = request.args.get('m')
+        timestamp = request.args.get('t')
+        
+        # Print clear message to terminal and log
+        message = f"""
+🔔 Email Opened!
+📧 Email ID: {uid}
+👤 Recipient: {email}
+⏰ Time: {datetime.datetime.fromtimestamp(int(timestamp)) if timestamp else 'N/A'}
+{'=' * 50}"""
+        
+        print(message)
+        logger.info(f"Email opened - UID: {uid}, Email: {email}")
+        
+        # Create transparent 1x1 GIF
+        transparent_gif = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+        
+        return send_file(
+            io.BytesIO(transparent_gif),
+            mimetype='image/gif',
+            as_attachment=False
+        )
+    except Exception as e:
+        logger.error(f"Error tracking open: {e}")
+        return jsonify({'error': str(e)}), 500
 
 def check_image(image_path):
     """
@@ -157,26 +173,29 @@ def track():
         return jsonify({"status": "fail", "message": "no picture is available"}) 
     return jsonify({"message": "Email sent"})
 
-@app.route('/track/open', methods=['GET'])
-def track_open():
-    """Track email opens by serving a transparent 1x1 tracking pixel"""
-    try:
-        # Get tracking parameters
-        uid = request.args.get('uid')
-        email = request.args.get('m')
-        timestamp = request.args.get('t')
-        
-        # Log the open event
-        logging.info(f"Email opened - UID: {uid}, Email: {email}, Time: {timestamp}")
-        
-        # Create a transparent 1x1 GIF
-        transparent_gif = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
-        
-        return send_file(
-            io.BytesIO(transparent_gif),
-            mimetype='image/gif',
-            as_attachment=False
-        )
-    except Exception as e:
-        logging.error(f"Error tracking open: {e}")
-        return "Error", 500
+def test_tracking_server():
+    base_url = "https://rsc00cwwwckcw8g44kgk0k0s.develdeep.com"
+    
+    # Test health endpoint
+    health_response = requests.get(f"{base_url}/health")
+    print("\nHealth Check:")
+    print(f"Status: {health_response.status_code}")
+    print(f"Response: {health_response.json()}")
+    
+    # Test tracking endpoint
+    track_response = requests.get(
+        f"{base_url}/track/open",
+        params={
+            "uid": "test123",
+            "m": "test@email.com",
+            "t": str(int(time.time()))
+        }
+    )
+    print("\nTracking Endpoint Test:")
+    print(f"Status: {track_response.status_code}")
+    
+    return health_response.status_code == 200 and track_response.status_code == 200
+
+if __name__ == "__main__":
+    success = test_tracking_server()
+    print(f"\nOverall Test Result: {'✅ Passed' if success else '❌ Failed'}")
