@@ -43,21 +43,24 @@ def health():
 def track_open():
     """Track email opens by serving a transparent 1x1 tracking pixel"""
     try:
-        # Get tracking parameters
         uid = request.args.get('uid')
         email = request.args.get('m')
         timestamp = request.args.get('t')
+        user_agent = request.headers.get('User-Agent', 'Unknown')
         
-        # Print clear message to terminal and log
+        open_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
         message = f"""
-🔔 Email Opened!
+📨 Email Open Detected!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📧 Email ID: {uid}
 👤 Recipient: {email}
-⏰ Time: {datetime.datetime.fromtimestamp(int(timestamp)) if timestamp else 'N/A'}
-{'=' * 50}"""
+⏰ Open Time: {open_time}
+🌐 User Agent: {user_agent}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
         
         print(message)
-        logger.info(f"Email opened - UID: {uid}, Email: {email}")
+        logger.info(f"Email opened - UID: {uid}, Email: {email}, Time: {open_time}, UA: {user_agent}")
         
         # Create transparent 1x1 GIF
         transparent_gif = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
@@ -69,7 +72,7 @@ def track_open():
         )
     except Exception as e:
         logger.error(f"Error tracking open: {e}")
-        return jsonify({'error': str(e)}), 500
+        return "Error", 500
 
 def check_image(image_path):
     """

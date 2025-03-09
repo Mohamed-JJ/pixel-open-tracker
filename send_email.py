@@ -66,24 +66,34 @@ class GraphEmailTester:
             timestamp = int(datetime.datetime.now().timestamp())
             
             # Create tracking pixel URL with parameters
-            tracking_pixel_url = f"https://rsc00cwwwckcw8g44kgk0k0s.develdeep.com/track/open?uid={message_id}&m={to_email}&t={timestamp}"
+            tracking_pixel_url = f"{self.tracking_server}/track/open?uid={message_id}&m={to_email}&t={timestamp}"
             
-            # Create HTML email template with tracking pixel
+            # Let's log the URL to verify it
+            print("\n🔍 Tracking Details:")
+            print(f"Message ID: {message_id}")
+            print(f"Tracking URL: {tracking_pixel_url}")
+            
             html_content = f"""
             <html>
                 <body style="font-family: Arial, sans-serif;">
                     <div style="padding: 20px;">
                         <p>{body}</p>
+                        <!-- Tracking Pixel -->
                         <img src="{tracking_pixel_url}" 
                              style="width:1px;height:1px;display:block" 
                              width="1" 
                              height="1" 
-                             alt=""/>
+                             alt=""
+                             id="tracking_{message_id}"/>
                     </div>
                 </body>
             </html>
             """
-
+            
+            # Log the complete HTML for verification
+            print("\n📧 Email HTML Preview:")
+            print(html_content)
+            
             # Prepare email data
             email_data = {
                 "message": {
