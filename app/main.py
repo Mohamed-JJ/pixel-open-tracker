@@ -156,3 +156,27 @@ def track():
     if (send_email("simojarboue28@gmail.com") == 0):
         return jsonify({"status": "fail", "message": "no picture is available"}) 
     return jsonify({"message": "Email sent"})
+
+@app.route('/track/open', methods=['GET'])
+def track_open():
+    """Track email opens by serving a transparent 1x1 tracking pixel"""
+    try:
+        # Get tracking parameters
+        uid = request.args.get('uid')
+        email = request.args.get('m')
+        timestamp = request.args.get('t')
+        
+        # Log the open event
+        logging.info(f"Email opened - UID: {uid}, Email: {email}, Time: {timestamp}")
+        
+        # Create a transparent 1x1 GIF
+        transparent_gif = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+        
+        return send_file(
+            io.BytesIO(transparent_gif),
+            mimetype='image/gif',
+            as_attachment=False
+        )
+    except Exception as e:
+        logging.error(f"Error tracking open: {e}")
+        return "Error", 500

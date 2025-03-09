@@ -8,5 +8,9 @@ services:
       - "8080:5000"
     volumes:
       - .:/app
+    environment:
+      - FLASK_APP=app.main:app
+      - FLASK_ENV=production
+      - LOG_LEVEL=INFO
     env_file:
       - .env
